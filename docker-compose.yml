@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+
+  petclinic:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+
+  ## Grafana / Prometheus
+
+  
+  grafana-server:
+    build: ./grafana
+    container_name: grafana-server
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    ports:
+    - 3000:3000
+
+  prometheus-server:
+    build: ./prometheus
+    container_name: prometheus-server
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    ports:
+    - 9090:9090

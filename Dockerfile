@@ -1,17 +1,12 @@
-FROM eclipse-temurin:17 as builder
-WORKDIR application
-ARG ARTIFACT_NAME
-COPY ${ARTIFACT_NAME}.jar application.jar
-RUN java -Djarmode=layertools -jar application.jar extract
+FROM maven:3.8.4-openjdk-17-slim AS builder
+# Set the working directory in the container
+WORKDIR /app
+# Copy the pom.xml and the project files to the container
+COPY pom.xml .
+COPY src ./src
+# Build the application using Maven
+RUN mvn clean package -DskipTests
 
-
-FROM eclipse-temurin:17
-WORKDIR application
-
-ARG EXPOSED_PORT
-EXPOSE ${EXPOSED_PORT}
-
-ENV SPRING_PROFILES_ACTIVE docker
-
-COPY --from=builder application/dependencies/ ./
-
+FROM openjdk:17-jdk-slim
+COPY --from=builder /app/target/*.jar /app/analytics.jar
+ENTRYPOINT ["java", "-jar", "/app/analytics.jar"]
